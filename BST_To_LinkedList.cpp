@@ -1,91 +1,81 @@
-#include <bits/stdc++.h>
-using namespace std;
+#include <iostream>
 
-class Node {
-public:
+struct Node {
     int data;
     Node* left;
     Node* right;
-    Node (int x) {
-        data = x;
-        left = nullptr;
-      	right = nullptr;
-    }
+
+    Node(int val) : data(val), left(nullptr), right(nullptr) {}
 };
 
-void inorder(Node* root) 
-{
-    if (root->left) {
-
-        Node* pred  = root->left;
-        while (pred->right){
-            pred = pred->right;
-        }
-        
-        inorder(root->left);
-        
-        pred->right = root;
-        root->left = pred;
-    }
-    
-    if (root->right) {
-        
-        Node* succ = root->right;
-        while (succ->left) {
-            succ = succ->left;
-        }
-        
-        inorder(root->right);
-        
-        root->right = succ;
-        succ->left = root;
-    }
-}
-
 Node* bToDLL(Node* root) {
-    
-    if (root == nullptr) return root;
-    
-    Node* head = root;
-    while (head->left != nullptr) 
-        head = head->left;
-        
-    inorder(root);
-    
-    return head;
+    Node* curr = root;
+    Node* prev = nullptr; 
+    Node* final_head = nullptr; 
+
+    while (curr) {
+        if (!curr->left) {
+            if (!final_head) {
+                prev = curr;
+                final_head = curr;
+            } else {
+                prev->right = curr;
+                curr->left = prev;
+            }
+            prev = curr;
+            curr = curr->right;
+        } else {
+            Node* pre = curr->left;
+            while (pre->right && pre->right != curr) {
+                pre = pre->right;
+            }
+            if (!pre->right) {
+                pre->right = curr;
+                curr = curr->left;
+            } else {
+                curr = pre->right;
+                prev->right = curr;
+                curr->left = prev;
+                prev = curr;
+                curr = curr->right;
+            }
+        }
+    }
+
+    return final_head;
 }
 
-void printList(Node* head){
-    Node* curr = head;
-    
-    while (curr != NULL) {
-        cout << curr->data << " ";
-        curr = curr->right;
+void print_dll(Node* head) {
+    while (head != nullptr) {
+        std::cout << head->data << " ";
+        head = head->right;
     }
-    cout<<endl;
 }
 
 int main() {
-    //          8
-    //         /  \
-    //       3    10    
-    //      / \     \
-    //     1   6    14
-    //        / \    /
-    //        4  7  13   
-    Node* root = new Node(8);
-    root->left = new Node(3);
-    root->left->left = new Node(1);
-    root->left->right = new Node(6);
-    root->left->right->left = new Node(4);
-    root->left->right->right= new Node(7);
-    root->right = new Node(10);
-    root->right->right = new Node(14);
-    root->right->right->left = new Node(13);
+    
+     //       8
+    //      / \
+    //     5   15
+    //    / \   \
+    //   2  7   17
+    //     /    /
+    //    6    16
+    Node* root= new Node(10);
+    
+    root->left= new Node(5);
+    root->right=new Node(15);
+    
+    root->left->left=new Node(2);
+    root->left->right=new Node(7);
+    root->right->right=new Node(17);
+
+    root->left->right->left=new Node(6);
+    root->right->right->left=new Node(16);
 
     Node* head = bToDLL(root);
 
-    printList(head);
+    print_dll(head);
 
     return 0;
 }
